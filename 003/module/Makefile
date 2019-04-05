@@ -1,9 +1,10 @@
 libmodule.so:module.o
-	cc -shared -fPIC -o $@ $< $(LDFLAGS) $(LDLIBS)
+	cc -shared -o $@ $< $(LDFLAGS) $(LDLIBS)
 	cp $@ ../libs
 
 CFLAGS=-I../include -fPIC
-LDFLAGS=-L../libs
+# here rpath is 
+LDFLAGS=-L../libs -Wl,-rpath="libs"
 LDLIBS=-lexternal_module
 
 clean:

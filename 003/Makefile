@@ -6,8 +6,8 @@ NAME  = dynamic
 BUILD = $(shell date +%c)
 VERSION = "$(NAME) version $(MAJOR).$(MINOR).$(REVISION)\ncompiled $(BUILD)"
 
-CPPFLAGS= -c -g -Wl,-rpath='libs'
-#LDFLAGS= -L. 
+CPPFLAGS= -c -g
+LDFLAGS= -Wl,-rpath='libs'
 LDLIBS= -ldl
 CC=g++
 all:main 

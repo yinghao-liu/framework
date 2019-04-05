@@ -1,22 +1,26 @@
-#include <iostream>
+//#include <iostream>
 #include <dlfcn.h>
+#include <stdio.h>
 
-using namespace std;
-
-int main(void)
+#include "main_module/main_module.h"
+//using namespace std;
+int load(void)
 {
-	void *handle = nullptr;
-	int (*module_print)(void) = nullptr;
+
+	//external_module();
+
+	void *handle = NULL;
+	int (*module_print)(void) = NULL;
 
     handle = dlopen("libs/libmodule.so", RTLD_LAZY);
-    if (nullptr == handle) {
+    if (NULL == handle) {
 		printf("dlopen error, %s\n", dlerror());
 		return -1;
     }
 	dlerror();    /* Clear any existing error */
 
 	module_print = (int (*)())dlsym(handle, "module");
-	if (nullptr == module_print) {
+	if (NULL== module_print) {
 		printf("dlsym module error, %s\n", dlerror());
 		return -1;
 	}
@@ -24,17 +28,17 @@ int main(void)
 
 
 	// open second time, and there is no error
-	void *handle_2 = nullptr;
-	int (*module_print_2)(void) = nullptr;
+	void *handle_2 = NULL;
+	int (*module_print_2)(void) = NULL;
     handle_2 = dlopen("libs/libmodule.so", RTLD_LAZY);
-    if (nullptr == handle_2) {
+    if (NULL == handle_2) {
 		printf("dlopen error, %s\n", dlerror());
 		return -1;
     }
 	dlerror();    /* Clear any existing error */
 
 	module_print_2 = (int (*)())dlsym(handle_2, "module");
-	if (nullptr == module_print_2) {
+	if (NULL == module_print_2) {
 		printf("dlsym module error, %s\n", dlerror());
 		return -1;
 	}
@@ -42,5 +46,12 @@ int main(void)
 
 	dlclose(handle);
 	dlclose(handle_2);
+	return 0;
+}
+
+int main(void)
+{
+	external_module(); // 
+	load();
 	return 0;
 }

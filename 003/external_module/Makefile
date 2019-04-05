@@ -1,8 +1,8 @@
 libexternal_module.so:external_module.o
-	$(CXX) -shared -o $@ $<
+	$(CC) -shared -o $@ $<
 	cp $@ ../libs
 
-CXXFLAGS=-I../include -fPIC
+CFLAGS=-I../include -fPIC
 
 clean:
 	rm -rf *.o *.so

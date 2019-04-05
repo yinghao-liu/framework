@@ -6,13 +6,22 @@ NAME  = dynamic
 BUILD = $(shell date +%c)
 VERSION = "$(NAME) version $(MAJOR).$(MINOR).$(REVISION)\ncompiled $(BUILD)"
 
-CPPFLAGS= -c -g
+CFLAGS= -c -g
 LDFLAGS= -Wl,-rpath='libs'
-LDLIBS= -ldl
-CC=g++
-all:main 
+LDLIBS= -ldl -Llibs -lmain_module
+#CC=g++
+all:dependence main 
 
-main.o response.o:CXXFLAGS += -D'VERSION=$(VERSION)' -D'NAME="$(NAME)"'
+dependence:
+	make -C external_module
+	make -C module
+	make -C main_module
+
+main.o:CXXFLAGS += -D'VERSION=$(VERSION)' -D'NAME="$(NAME)"'
 main:main.o 
+
 clean:
 	rm -rf *.o main
+	make -C external_module clean
+	make -C module clean
+	make -C main_module clean

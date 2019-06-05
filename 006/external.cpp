@@ -19,32 +19,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 /**
- * situation 1:
+ * situation 2:
  *
  */
-void leak_fun(void)
+void external_leak_fun(void)
 {
 	char *waste=nullptr;
 	waste = (char *)malloc(4*1024);
 	waste[0] = 1;
 	waste[1] = waste[0];
 }
-/**
- * situation 2:
- *
- */
-extern void external_leak_fun(void);
 
-int main(void)
-{
-	for (int i=0; i<10; i++) {
-		//leak_fun();
-		external_leak_fun();
-	}
-	printf("after leak function\n");
-	for (int i=0; i<5; i++) {
-		sleep(1);
-	}
-	printf("will exit\n");
-	return 0;
-}

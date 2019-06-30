@@ -18,33 +18,82 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+#if (4==MODE || 5==MODE)
+#include <dlfcn.h>
+#endif
+
 /**
  * situation 1:
  *
  */
 void leak_fun(void)
 {
+	printf("enter leak_fun\n");
 	char *waste=nullptr;
-	waste = (char *)malloc(4*1024);
+	char tmp;
+	waste = (char *)malloc(1024);
+	printf("waste1 pointer: %p\n", waste);
 	waste[0] = 1;
-	waste[1] = waste[0];
+	//error 1: out-of-bounds
+	waste[1024] = 2;
+	tmp = waste[1024];
+	//error 2: use-after-free
+	free(waste);
+	waste[0] = 1;
+	//error 3: memory-leak
+	waste = (char *)malloc(1024);
+	printf("waste2 pointer: %p\n", waste);
+	printf("exit leak_fun\n");
 }
 /**
- * situation 2:
+ * situation 2、3:
  *
  */
-extern void external_leak_fun(void);
+extern void shared_leak_fun(void);
+#if (4==MODE || 5==MODE)
+/**
+ * situation 4、5:
+ *
+ */
+void (*dynamic_leak_fun)(void) = nullptr;
+int load_dynamic_lib(void)
+{
 
+	void *handle = NULL;
+
+    handle = dlopen("./libdynamic_lib.so", RTLD_LAZY);
+    if (NULL == handle) {
+		printf("dlopen error, %s\n", dlerror());
+		return -1;
+    }
+	dlerror();    /* Clear any existing error */
+
+	//dynamic_leak_fun = (void (*)())dlsym(handle, "dynamic_leak_fun");
+	dynamic_leak_fun = (void (*)())dlsym(handle, "_Z16dynamic_leak_funv");
+	if (NULL== dynamic_leak_fun) {
+		printf("dlsym module error, %s\n", dlerror());
+		return -1;
+	}
+	dynamic_leak_fun();
+
+	dlclose(handle);
+	return 0;
+}
+#endif
 int main(void)
 {
 	for (int i=0; i<10; i++) {
-		//leak_fun();
-		external_leak_fun();
+#if (1==MODE)
+		leak_fun();
+#elif (2==MODE || 3==MODE)
+		shared_leak_fun();
+#else
+		load_dynamic_lib();
+#endif
 	}
-	printf("after leak function\n");
-	for (int i=0; i<5; i++) {
-		sleep(1);
-	}
+	printf("after memory test function\n");
+	sleep(5);
 	printf("will exit\n");
 	return 0;
 }

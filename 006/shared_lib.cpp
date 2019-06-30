@@ -15,16 +15,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#include <stdio.h>
 #include <stdlib.h>
 /**
- * situation 2:
+ * situation 2,3:
  *
  */
-void external_leak_fun(void)
+void shared_leak_fun(void)
 {
+	printf("enter shared_leak_fun\n");
 	char *waste=nullptr;
-	waste = (char *)malloc(4*1024);
+	char tmp;
+	waste = (char *)malloc(1024);
+	printf("waste1 pointer: %p\n", waste);
 	waste[0] = 1;
-	waste[1] = waste[0];
+	//error 1: out-of-bounds
+	waste[1024] = 2;
+	tmp = waste[1024];
+	//error 2: use-after-free
+	free(waste);
+	waste[0] = 1;
+	//error 3: memory-leak
+	waste = (char *)malloc(1024);
+	printf("waste2 pointer: %p\n", waste);
+	printf("exit shared_leak_fun\n");
 }
 

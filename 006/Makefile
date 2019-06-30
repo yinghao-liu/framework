@@ -31,10 +31,12 @@ ifeq ($(CASE), 4)
 ALL+=dependence
 CXXFLAGS+=$(FSANITIZE)
 LDFLAGS+=$(FSANITIZE)
+LOADLIBES=-ldl
 endif
 
 ifeq ($(CASE), 5)
 ALL+=dependence
+LOADLIBES=-ldl
 endif
 
 LDLIBS=

@@ -1,34 +1,60 @@
-CXXFLAGS=-g -std=c++17
+CXXFLAGS=-g -std=c++17 -DMODE=$(CASE)
 CC=$(CXX)
 
 CASE?=1
+FSANITIZE=-fsanitize=address
+ALL:=main
 
-ifeq ($(CASE), 3)
-LDFLAGS=-Wl,-rpath='.'
-else
-LDFLAGS=-fsanitize=leak -Wl,-rpath='.'
+ifeq ($(CASE), 1)
+CXXFLAGS+=$(FSANITIZE) 
+LDFLAGS+=$(FSANITIZE)
 endif
-LOADLIBES=-L. -lexternal
-LDLIBS=
 
-all: libexternal.so main
-ifneq ($(CASE), 3)
-main.o:CXXFLAGS+=-fsanitize=leak
-endif
-main:main.o
-
-ifeq ($(CASE), 3)
-external.o:CXXFLAGS+=-shared -fPIC -fsanitize=leak
-SHAREFLAGS=-fsanitize=leak -shared
-else
-external.o:CXXFLAGS+=-shared -fPIC
+ifeq ($(CASE), 2)
+ALL:=libshared_lib.so $(ALL)
+main.o:CXXFLAGS+=$(FSANITIZE)
+LDFLAGS+=-Wl,-rpath='.' $(FSANITIZE)
+LOADLIBES=-L. -lshared_lib
+shared_lib.o:CXXFLAGS+=-shared -fPIC
 SHAREFLAGS:=-shared
 endif
-libexternal.so:external.o
+
+ifeq ($(CASE), 3)
+ALL:=libshared_lib.so $(ALL)
+LDFLAGS=-Wl,-rpath='.'
+LOADLIBES=-L. -lshared_lib
+shared_lib.o:CXXFLAGS+=-shared -fPIC $(FSANITIZE)
+SHAREFLAGS=-shared $(FSANITIZE)
+endif
+
+ifeq ($(CASE), 4)
+ALL+=dependence
+CXXFLAGS+=$(FSANITIZE)
+LDFLAGS+=$(FSANITIZE)
+endif
+
+ifeq ($(CASE), 5)
+ALL+=dependence
+endif
+
+LDLIBS=
+
+
+
+
+all: $(ALL)
+
+main:main.o
+
+libshared_lib.so:shared_lib.o
 	$(CC) $(SHAREFLAGS) -o $@ $^
+
+dependence:
+	make -C dynamic_lib CASE=$(CASE)
 
 help:
 	@echo "make [CASE=1]"
-	@echo "CASE can be 1,2,3 default is 1"
+	@echo "CASE can be 1,2,3,4,5 refer to <README.md>, default is 1"
 clean:
 	@rm -rf *.o *.so main 
+	make -C dynamic_lib clean

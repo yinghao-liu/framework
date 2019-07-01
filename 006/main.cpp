@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#if (4==MODE || 5==MODE)
+#if (5==MODE || 6==MODE || 7==MODE)
 #include <dlfcn.h>
 #endif
 
@@ -47,13 +47,13 @@ void leak_fun(void)
 	printf("exit leak_fun\n");
 }
 /**
- * situation 2、3:
+ * situation 2,3,4:
  *
  */
 extern void shared_leak_fun(void);
-#if (4==MODE || 5==MODE)
+#if (5==MODE || 6==MODE || 7==MODE)
 /**
- * situation 4、5:
+ * situation 5,6,7:
  *
  */
 void (*dynamic_leak_fun)(void) = nullptr;
@@ -86,7 +86,7 @@ int main(void)
 	for (int i=0; i<10; i++) {
 #if (1==MODE)
 		leak_fun();
-#elif (2==MODE || 3==MODE)
+#elif (2==MODE || 3==MODE || 4==MODE)
 		shared_leak_fun();
 #else
 		load_dynamic_lib();

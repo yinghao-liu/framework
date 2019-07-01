@@ -28,14 +28,30 @@ SHAREFLAGS=-shared $(FSANITIZE)
 endif
 
 ifeq ($(CASE), 4)
+ALL:=libshared_lib.so $(ALL)
+main.o:CXXFLAGS+=$(FSANITIZE)
+LDFLAGS+=-Wl,-rpath='.' $(FSANITIZE)
+LOADLIBES=-L. -lshared_lib
+shared_lib.o:CXXFLAGS+=-shared -fPIC $(FSANITIZE)
+SHAREFLAGS=-shared $(FSANITIZE)
+endif
+
+ifeq ($(CASE), 5)
 ALL+=dependence
 CXXFLAGS+=$(FSANITIZE)
 LDFLAGS+=$(FSANITIZE)
 LOADLIBES=-ldl
 endif
 
-ifeq ($(CASE), 5)
+ifeq ($(CASE), 6)
 ALL+=dependence
+LOADLIBES=-ldl
+endif
+
+ifeq ($(CASE), 7)
+ALL+=dependence
+CXXFLAGS+=$(FSANITIZE)
+LDFLAGS+=$(FSANITIZE)
 LOADLIBES=-ldl
 endif
 
@@ -56,7 +72,7 @@ dependence:
 
 help:
 	@echo "make [CASE=1]"
-	@echo "CASE can be 1,2,3,4,5 refer to <README.md>, default is 1"
+	@echo "CASE can be 1,2,3,4,5,6,7 refer to <README.md>, default is 1"
 clean:
 	@rm -rf *.o *.so main 
 	make -C dynamic_lib clean

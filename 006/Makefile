@@ -2,7 +2,7 @@ CXXFLAGS=-g -std=c++17 -DMODE=$(CASE)
 CC=$(CXX)
 
 CASE?=1
-FSANITIZE=-fsanitize=address
+FSANITIZE=-fsanitize=address #-fsanitize-recover=address
 ALL:=main
 
 ifeq ($(CASE), 1)

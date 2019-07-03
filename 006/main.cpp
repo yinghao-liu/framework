@@ -62,11 +62,11 @@ int load_dynamic_lib(void)
 
 	void *handle = NULL;
 
-    handle = dlopen("./libdynamic_lib.so", RTLD_LAZY);
-    if (NULL == handle) {
+	handle = dlopen("./libdynamic_lib.so", RTLD_LAZY);
+	if (NULL == handle) {
 		printf("dlopen error, %s\n", dlerror());
 		return -1;
-    }
+	}
 	dlerror();    /* Clear any existing error */
 
 	//dynamic_leak_fun = (void (*)())dlsym(handle, "dynamic_leak_fun");

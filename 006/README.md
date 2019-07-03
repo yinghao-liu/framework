@@ -1,39 +1,40 @@
 # 006 
-fsanitize flag in gcc
+fsanitize flag in gcc  
+environment: Ubuntu 18.04.1 && gcc 7.4.0
 
 ## Description
 check if it can detecte those situation listed below
-1. a prog which compiled with fsanitize invoke one function which in the same file, and
+1. a prog compiled with fsanitize invoke one function which in the same file, and
    - [x] cause out-of-bounds bug
    - [x] cause use-after-free bug
    - [x] cause memory leak several times, and exit.
    - [ ] cause memory leak several times, and do not exit.
-2. a prog which compiled with fsanitize invoke one function from shared library which compiled without fsanitize
+2. a prog compiled with fsanitize invoke one function from shared library which compiled without fsanitize
    - [ ] cause out-of-bounds bug
    - [ ] cause use-after-free bug
    - [x] cause memory leak several times, and exit.
    - [ ] cause memory leak several times, and do not exit.
-3. a prog which compiled without fsanitize invoke one function from shared library which compiled with fsanitize
+3. a prog compiled without fsanitize invoke one function from shared library which compiled with fsanitize
    - [x] cause out-of-bounds bug
    - [x] cause use-after-free bug
    - [x] cause memory leak several times, and exit.
    - [ ] cause memory leak several times, and do not exit.
-4. a prog which compiled with fsanitize invoke one function from shared library which compiled with fsanitize
+4. a prog compiled with fsanitize invoke one function from shared library which compiled with fsanitize
    - [x] cause out-of-bounds bug
    - [x] cause use-after-free bug
    - [x] cause memory leak several times, and exit.
    - [ ] cause memory leak several times, and do not exit.
-5. a prog which compiled with fsanitize invoke one function from dlopened library which compiled without fsanitize
+5. a prog compiled with fsanitize invoke one function from dlopened library which compiled without fsanitize
    - [ ] cause out-of-bounds bug
    - [ ] cause use-after-free bug
    - [x] cause memory leak several times, and exit.
    - [ ] cause memory leak several times, and do not exit.
-6. a prog which compiled without fsanitize invoke one function from dlopened library which compiled with fsanitize
+6. a prog compiled without fsanitize invoke one function from dlopened library which compiled with fsanitize
    - [x] cause out-of-bounds bug
    - [x] cause use-after-free bug
    - [x] cause memory leak several times, and exit.
    - [ ] cause memory leak several times, and do not exit.
-7. a prog which compiled with fsanitize invoke one function from dlopened library which compiled with fsanitize
+7. a prog compiled with fsanitize invoke one function from dlopened library which compiled with fsanitize
    - [x] cause out-of-bounds bug
    - [x] cause use-after-free bug
    - [x] cause memory leak several times, and exit.

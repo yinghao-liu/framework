@@ -1,8 +1,9 @@
 #ifndef _SYSCAP_
 #define _SYSCAP_
-/****macros***/
+/**** macros ****/
 
-/*****type definition****/
+
+/***** type definition *****/
 struct syscap_t {
 	long cpu_num;
 };
@@ -13,7 +14,7 @@ struct xxxcap_t {
 	xxxvalue;
 };*/
 
-/***const value****/
+/*** const value ****/
 
 /*******functions**********/
 #endif

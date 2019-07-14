@@ -24,11 +24,16 @@
 #include <sys/types.h>
 #include <sys/resource.h>
 
-/*******************user head files******************/
+/******************* user head files ******************/
 #include "syscap.h"
 
 
 syscap_t g_syscap;
+struct pthread_args {
+	char name[16]; ///< The name can be up to 16 bytes long, including the terminating null byte
+};
+
+const char *g_policy_name[10] = {};
 
 void print_thread_cpulist(pid_t pid)
 {
@@ -53,18 +58,77 @@ void print_thread_cpulist(pid_t pid)
 	printf("%s", buffer);
 }
 //int pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start_routine) (void *), void *arg);
-void waste(void *arg)
+void *waste(void *arg)
 {
+	pthread_args *args = (pthread_args *)arg;
+	if (nullptr != args) {
+		printf("pthread name is %s\n", args->name);
+		pthread_setname_np(pthread_self(), args->name);
+	}
 	print_thread_cpulist(0);
+
 	cpu_set_t cpu_mask;
 	CPU_ZERO(&cpu_mask);
 	CPU_SET(1, &cpu_mask);
 	sched_setaffinity(0, sizeof (cpu_set_t), &cpu_mask);
 	print_thread_cpulist(0);
+
+	int policy;
+	policy = sched_getscheduler(0);
+	printf("policy is %d:%s\n", policy, g_policy_name[policy]);
+
+	int priority;
+	priority =  getpriority(PRIO_PROCESS, 0);
+	printf("policy(nice value) is %d\n", priority);
+
+
 	int i = 0;
 	while (1) {
 		i++;
 	}
+	return nullptr;
+}
+
+
+int sys_init(void)
+{
+	int max;
+	int min;
+
+	printf("---------- normal scheduling policies ----------\n");
+	g_policy_name[SCHED_OTHER] = "SCHED_OTHER";
+	max = sched_get_priority_max(SCHED_OTHER);
+	min = sched_get_priority_min(SCHED_OTHER);
+	printf("SCHED_OTHER is %u, %d-%d\n", SCHED_OTHER, min, max);
+
+	g_policy_name[SCHED_BATCH] = "SCHED_BATCH";
+	max = sched_get_priority_max(SCHED_BATCH);
+	min = sched_get_priority_min(SCHED_BATCH);
+	printf("SCHED_BATCH is %u, %d-%d\n", SCHED_BATCH, min, max);
+
+	g_policy_name[SCHED_IDLE] = "SCHED_IDLE";
+	max = sched_get_priority_max(SCHED_IDLE);
+	min = sched_get_priority_min(SCHED_IDLE);
+	printf("SCHED_IDLE is %u, %d-%d\n", SCHED_IDLE, min, max);
+
+	g_policy_name[SCHED_DEADLINE] = "SCHED_DEADLINE";
+	max = sched_get_priority_max(SCHED_DEADLINE);
+	min = sched_get_priority_min(SCHED_DEADLINE);
+	printf("SCHED_DEADLINE is %u, %d-%d\n", SCHED_DEADLINE, min, max);
+
+	printf("---------- real-time policies ----------\n");
+	g_policy_name[SCHED_FIFO] = "SCHED_FIFO";
+	max = sched_get_priority_max(SCHED_FIFO);
+	min = sched_get_priority_min(SCHED_FIFO);
+	printf("SCHED_FIFO is %u, %d-%d\n", SCHED_FIFO, min, max);
+
+	g_policy_name[SCHED_RR] = "SCHED_RR";
+	max = sched_get_priority_max(SCHED_RR);
+	min = sched_get_priority_min(SCHED_RR);
+	printf("SCHED_RR is %u, %d-%d\n", SCHED_RR, min, max);
+	printf("---------- policies end ----------\n");
+
+	return 0;
 }
 
 int get_sys_capacity(void)
@@ -76,8 +140,20 @@ int get_sys_capacity(void)
 
 int main(int argc, char *argv[]) 
 {
+	sys_init();
 	get_sys_capacity();
-
-	waste(NULL);
+	
+	int ret;
+	pthread_t thread;
+	pthread_args pargs;
+	memset(&pargs, 0, sizeof (pargs));
+	snprintf(pargs.name, sizeof (pargs.name), "waste1");
+	ret = pthread_create(&thread, nullptr, waste, &pargs); 
+	if (0 != ret) {
+		printf("pthread_create error %s\n", strerror(ret));
+	}
+	while (1) {
+		sleep(1);
+	}
 	return 0;
 }

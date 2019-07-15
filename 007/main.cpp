@@ -17,6 +17,7 @@
  */
 #include <stdio.h>
 #include <sched.h>
+#include <errno.h>
 #include <unistd.h>
 #include <string.h>
 #include <pthread.h>
@@ -30,10 +31,12 @@
 
 syscap_t g_syscap;
 struct pthread_args {
-	char name[16]; ///< The name can be up to 16 bytes long, including the terminating null byte
+	char name[16];					///< The name can be up to 16 bytes long, including the terminating null byte
+	int policy = SCHED_OTHER;		///< scheduling policy, SCHED_OTHER default
+	int priority = 0;				///< priority, it's always 0 for normal policy(not real-time ones)
 };
 
-const char *g_policy_name[10] = {};
+const char *g_policy_name[10] = {nullptr};
 
 void print_thread_cpulist(pid_t pid)
 {
@@ -60,9 +63,12 @@ void print_thread_cpulist(pid_t pid)
 //int pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start_routine) (void *), void *arg);
 void *waste(void *arg)
 {
+	int ret;
+	char errmsg[64] = {0};
+
 	pthread_args *args = (pthread_args *)arg;
 	if (nullptr != args) {
-		printf("pthread name is %s\n", args->name);
+		printf("-------pthread name is %s\n", args->name);
 		pthread_setname_np(pthread_self(), args->name);
 	}
 	print_thread_cpulist(0);
@@ -74,12 +80,24 @@ void *waste(void *arg)
 	print_thread_cpulist(0);
 
 	int policy;
+	struct sched_param param;
+	memset(&param, 0, sizeof (param));
 	policy = sched_getscheduler(0);
 	printf("policy is %d:%s\n", policy, g_policy_name[policy]);
 
 	int priority;
 	priority =  getpriority(PRIO_PROCESS, 0);
 	printf("policy(nice value) is %d\n", priority);
+
+	printf("policy set to %d:%s\n", SCHED_BATCH, g_policy_name[SCHED_BATCH]);
+	param.sched_priority = 0; // param->sched_priority must be 0. for those not "real-time" policy
+	ret = sched_setscheduler(0, SCHED_BATCH, &param);
+	if (0 != ret) {
+		printf("sched_setscheduler error %s\n", strerror_r(errno, errmsg, sizeof (errmsg)));
+	}
+	policy = sched_getscheduler(0);
+	printf("policy is %d:%s\n", policy, g_policy_name[policy]);
+
 
 
 	int i = 0;
@@ -146,7 +164,6 @@ int main(int argc, char *argv[])
 	int ret;
 	pthread_t thread;
 	pthread_args pargs;
-	memset(&pargs, 0, sizeof (pargs));
 	snprintf(pargs.name, sizeof (pargs.name), "waste1");
 	ret = pthread_create(&thread, nullptr, waste, &pargs); 
 	if (0 != ret) {

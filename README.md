@@ -8,3 +8,4 @@ This repository shows how to use something, such as a functon or a open source l
 ## 005 [backtrace](005)
 ## 006 [fsanitize flag in gcc](006)
 ## 007 [sched](007)
+## 008 [exception pthread_mutex_lock and pthread_cond_wait](008)

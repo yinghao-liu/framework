@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 
 	thread_sem_get(&g_sem_read);
 	
-	// thread1 anf thread2 must in pthread_cond_wait 
+	// thread1 and thread2 will be blocked in pthread_cond_wait after create
 	ret = pthread_create(&thread1, nullptr, waste, nullptr); 
 	if (0 != ret) {
 		printf("pthread_create error %s\n", strerror(ret));

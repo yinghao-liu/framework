@@ -1,6 +1,15 @@
 #include <iostream>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
 #include "uv.h"
+#include "file_asio.h"
 using namespace std;
+using namespace file_asio;
+
+
 int counter = 0;
 void timer_cb(uv_timer_t* handle)
 {
@@ -20,8 +29,44 @@ void fs_event_cb(uv_fs_event_t* handle, const char* filename, int events, int st
 {
 	printf("%s:%d,%d\n", filename, events, status);
 }
+
+int tcp_init(uv_loop_t* loop)
+{
+	 uv_tcp_t handle;
+	 uv_tcp_init(loop, &handle);
+
+	
+}
+
+constexpr const char *write_string = "file io test\n";
+void general_io(void)
+{
+	int fd;
+	fd = open("general_file", O_RDWR | O_TRUNC |O_CREAT, S_IRWXU);
+	if (-1 == fd) {
+		perror("open general_file");
+		return;
+	}
+	for (int i=0; i<200; i++) {
+		//write(fd, "file test", sizeof (FILE_IO_TEST));
+		write(fd, write_string, strlen(write_string));
+	}
+	close(fd);
+}
+
+void uv_io(void)
+{
+	init();
+	start();
+}
 int main(void)
 {
+
+	//general_io();
+	uv_io();
+
+	return 0;
+
 	uv_loop_t *loop;
 	loop = uv_default_loop();
 
@@ -37,9 +82,11 @@ int main(void)
 	uv_fs_event_start(&fs_event, fs_event_cb, "test_file", UV_FS_EVENT_WATCH_ENTRY);
 
 	// idle event
-	//uv_idle_t idle_event;
-	//uv_idle_init(loop, &idle_event);
-	//uv_idle_start(&idle_event, idle_cb);
+	uv_idle_t idle_event;
+	uv_idle_init(loop, &idle_event);
+	uv_idle_start(&idle_event, idle_cb);
+
+	uv_print_all_handles(loop, stdout);
 
 	cout<<"before run"<<endl;
 	uv_run(loop, UV_RUN_DEFAULT);

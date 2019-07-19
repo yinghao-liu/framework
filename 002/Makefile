@@ -13,6 +13,6 @@ CC=g++
 all:main 
 
 main.o response.o:CXXFLAGS += -D'VERSION=$(VERSION)' -D'NAME="$(NAME)"'
-main:main.o 
+main:main.o file_asio.o
 clean:
 	rm -rf *.o main

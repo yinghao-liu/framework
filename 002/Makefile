@@ -1,14 +1,14 @@
 MAJOR = 0
 MINOR = 0
 REVISION = 0
-NAME  = echo_server
+NAME  = uv_test
 
 BUILD = $(shell date +%c)
 VERSION = "$(NAME) version $(MAJOR).$(MINOR).$(REVISION)\ncompiled $(BUILD)"
 
-CPPFLAGS= -c -g -I. -Wl,-rpath='./'
-LDFLAGS= -L. 
-LDLIBS= -lrt -lpthread -luv
+CXXFLAGS=-g -I. -std=c++17
+LDFLAGS= -L. -Wl,-rpath='.'
+LDLIBS= -luv
 CC=g++
 all:main 
 

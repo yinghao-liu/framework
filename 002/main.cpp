@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 #include "uv.h"
 #include "file_asio.h"
 using namespace std;
@@ -38,7 +39,6 @@ int tcp_init(uv_loop_t* loop)
 	
 }
 
-constexpr const char *write_string = "file io test\n";
 void general_io(void)
 {
 	int fd;
@@ -47,11 +47,26 @@ void general_io(void)
 		perror("open general_file");
 		return;
 	}
-	for (int i=0; i<200; i++) {
+	for (int i=0; i<g_max_tick; i++) {
 		//write(fd, "file test", sizeof (FILE_IO_TEST));
 		write(fd, write_string, strlen(write_string));
 	}
 	close(fd);
+}
+
+void general_buffio(void)
+{
+	FILE *fd;
+	fd = fopen("general_buff_file", "w");
+	if (nullptr == fd) {
+		perror("open general_file");
+		return;
+	}
+	for (int i=0; i<g_max_tick; i++) {
+	//for (int i=0; i<1; i++) {
+		fwrite(write_string, strlen(write_string), 1, fd);
+	}
+	fclose(fd);
 }
 
 void uv_io(void)
@@ -59,11 +74,15 @@ void uv_io(void)
 	init();
 	start();
 }
-int main(void)
+int main(int argc, char *argv[])
 {
-
-	//general_io();
-	uv_io();
+	if (1 == atoi(argv[1])) {
+		general_io();
+	} else if (2 == atoi(argv[1])) {
+		general_buffio();
+	} else if (3 == atoi(argv[1])) {
+		uv_io();
+	}
 
 	return 0;
 

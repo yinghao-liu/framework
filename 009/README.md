@@ -10,3 +10,5 @@ openssl-libcrypto
 
 
 ## reference
+1. https://github.com/openssl/openssl
+2. https://www.openssl.org/docs/man1.1.1/man3/

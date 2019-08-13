@@ -6,6 +6,7 @@
 int main(void)
 {
 	debug_init();
+
 	char *buf = NULL;
 	buf = (char *)malloc(1024);
 

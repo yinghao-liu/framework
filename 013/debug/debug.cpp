@@ -21,6 +21,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include "debug.h"
 int g_debug_quit = false;
 /**
  * SIGUSR1 for normal return (not exit) process, that can do a memory detecte
@@ -38,7 +39,7 @@ int debug_init(void)
 	struct sigaction sig_act;
 	memset(&sig_act, 0, sizeof (sig_act));
 	sig_act.sa_handler = debug_sig_handle;
-	ret = sigaction(SIGUSR1, &sig_act, NULL);
+	ret = sigaction(DEBUG_QUIT_SIG, &sig_act, NULL);
 	if (0 != ret) {
 		perror("sigaction");
 	}

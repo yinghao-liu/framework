@@ -19,6 +19,9 @@
 #ifndef _DEBUG_H_
 #define _DEBUG_H_
 
+// for pause()
+#include <unistd.h>
+
 #define DEBUG_QUIT_SIG SIGUSR1
 /**
  * @brief A gloabal quit flag, if true, your thread should do clean-up

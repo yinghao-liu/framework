@@ -2,6 +2,10 @@
 essential component for c/c++
 
 ## Description
+makefile
+fsanitize
+doxygen
+log
 
 ## Notes
 

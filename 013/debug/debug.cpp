@@ -17,11 +17,9 @@
  */
 #include <stdio.h>
 #include <string.h>
-#include <stdint.h>
 #include <signal.h>
-#include <unistd.h>
-#include <stdlib.h>
 #include "debug.h"
+
 int g_debug_quit = false;
 /**
  * SIGUSR1 for normal return (not exit) process, that can do a memory detecte

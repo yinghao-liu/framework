@@ -55,7 +55,7 @@ int listen_port(uint16_t port)
 
 	server_sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (-1 == server_sock) {
-		log(ERROR, "socket: %s\n",strerror(errno));
+		log(log_level_t::ERROR, "socket: %s\n",strerror(errno));
 		return -1;
 	}
 	int keepalive = 1;		//turn on keepalive
@@ -69,12 +69,12 @@ int listen_port(uint16_t port)
 	setsockopt(server_sock, SOL_TCP, TCP_KEEPCNT, &keepcount, sizeof(keepcount));
 
 	if (-1 == bind(server_sock, (struct sockaddr*)&local_addr, sizeof (local_addr))){
-		log(ERROR, "bind: %s\n",strerror(errno));
+		log(log_level_t::ERROR, "bind: %s\n",strerror(errno));
 		close(server_sock);
 		return -1;
 	}
 	if (-1 == listen(server_sock, LISTEN_QUEUE)){
-		log(ERROR, "listen: %s\n",strerror(errno));
+		log(log_level_t::ERROR, "listen: %s\n",strerror(errno));
 		close(server_sock);
 		return -1;
 	}
@@ -87,11 +87,11 @@ void check_exclusive(void)
 	int fd=-1;
 	fd = open(path.c_str(), O_CREAT|O_RDONLY, S_IRWXU);
 	if (-1 == fd){
-		log(ERROR, "check exclusive open file %s: %s\n", path.c_str(), strerror(errno));
+		log(log_level_t::ERROR, "check exclusive open file %s: %s\n", path.c_str(), strerror(errno));
 		exit(-1);
 	}
 	if (-1 == flock(fd, LOCK_EX|LOCK_NB)){
-		log(ERROR, "flock: %s\n",strerror(errno));
+		log(log_level_t::ERROR, "flock: %s\n",strerror(errno));
 		exit(-1);
 	}
 }
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
 				show_version();
 				return 0;
 			case 'd':
-				log_init((level_t)atoi(optarg));
+				log_init((log_level_t)atoi(optarg));
 				break;
 			case 'h':
 			default:
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
 	int accefd;
 	sockfd = listen_port(LISTEN_PORT);
 	if (-1 == sockfd){
-		log(ERROR, "socket creat failed,will exit\n");
+		log(log_level_t::ERROR, "socket creat failed,will exit\n");
 		return -1;
 	}
 	
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
 	while (1){
 		accefd = accept(sockfd, NULL, NULL);
 		if (-1 == accefd){
-			log(ERROR, "accept: %s\n",strerror(errno));
+			log(log_level_t::ERROR, "accept: %s\n",strerror(errno));
 			sleep(2);
 			continue;
 		}

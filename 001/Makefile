@@ -6,8 +6,9 @@ NAME  = echo_server
 BUILD = $(shell date +%c)
 VERSION = "$(NAME) version $(MAJOR).$(MINOR).$(REVISION)\ncompiled $(BUILD)"
 
-CPPFLAGS= -c -g
-LDFLAGS= -lrt -lpthread
+CPPFLAGS= -c -g -std=c++17
+LDFLAGS=
+LOADLIBES=-lrt -lpthread
 CC=g++
 all:main client
 

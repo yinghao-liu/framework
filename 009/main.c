@@ -303,7 +303,7 @@ int do_name_ex(const X509_NAME *n)
 	return 0;
 }
 
-X509 *load_x509_file(const char *file_name)
+X509 *load_x509_crt(const char *file_name)
 {
 	FILE *fp = NULL;
 	fp = fopen(file_name, "r");
@@ -321,6 +321,23 @@ X509 *load_x509_file(const char *file_name)
 	return cert;
 }
 
+EVP_PKEY *load_x509_pkey(const char *file_name)
+{
+	FILE *fp = NULL;
+	fp = fopen(file_name, "r");
+	if (NULL == fp) {
+		fprintf(stderr, "unable to open: %s\n", file_name);
+		return NULL;
+	}
+	EVP_PKEY *key = NULL;
+	key = PEM_read_PrivateKey(fp, NULL, NULL, NULL);
+	if (NULL == key) {
+		fprintf(stderr, "unable to parse private key\n");
+		fclose(fp);
+		return NULL;
+	}
+	return key;
+}
 
 int i2ns_ASN1_INTEGER(const ASN1_INTEGER *a, char *sout, size_t len)
 {
@@ -358,17 +375,31 @@ int i2ns_ASN1_INTEGER(const ASN1_INTEGER *a, char *sout, size_t len)
 err:
 	return -1;
 }
-
 int main(void)
 {
 	int ret = -1;
 	char buff[128] = {};
 
 	X509 *cert = NULL;
-	cert = load_x509_file("server.crt");
+	cert = load_x509_crt("server.crt");
 	if (NULL == cert) {
 		return -1;
 	}
+	/*
+	X509_check_private_key()  return 1 if the keys match each other, and 0 if not.
+	If the key is invalid or an error occurred, the reason code can be obtained using ERR_get_error(3).
+	*/
+#if 0
+	EVP_PKEY *key = NULL;
+	key = load_x509_pkey("server.key");
+	if (NULL == key) {
+		return -1;
+	}
+	int private_key_check = 0;
+	private_key_check = X509_check_private_key(cert, key);
+	printf("X509_check_private_key ret: %d\n", private_key_check);
+	return 0;
+#endif
 	/* X509_get_version() returns the numerical value of the
 	 * version field of certificate x. Note: this is defined
 	 * by standards (X.509 et al) to be one less than the certificate

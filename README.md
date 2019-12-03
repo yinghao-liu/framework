@@ -10,4 +10,5 @@ This repository shows how to use something, such as a functon or a open source l
 ## 007 [sched](007)
 ## 008 [exception pthread_mutex_lock and pthread_cond_wait](008)
 ## 009 [openssl-libcrypto](009)
+## 010 [design pattern](010)
 ## 013 [essential component](013)

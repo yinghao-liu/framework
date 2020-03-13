@@ -3,12 +3,10 @@ subdir=("UsageEnvironment" "BasicUsageEnvironment" "groupsock" "liveMedia")
 if [ ! -d "lib/live555" ];then
 	mkdir -p "lib/live555"
 fi
-for i in ${subdir[*]};do
-	realpath="include/live555/$i"
-	if [ ! -d $realpath ];then
-		mkdir -p $realpath
-	fi
-done
+if [ ! -d "include/live555" ];then
+	mkdir -p "include/live555"
+fi
+
 if [ $# -lt 1 ];then
 	echo "need live555 path"
 	exit -1
@@ -16,7 +14,7 @@ fi
 echo $1
 for i in ${subdir[*]};do
 	cp -f $1/$i/*.a lib/live555/
-	cp -f $1/$i/include/* include/live555/$i/
+	cp -f $1/$i/include/* include/live555/
 done
 
 

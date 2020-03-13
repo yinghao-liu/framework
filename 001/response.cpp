@@ -146,7 +146,7 @@ void *response::write_to_mq(void *arg)
 			log(log_level_t::ERROR, "epoll_wait: %s\n",strerror(errno));
 			continue;
 		} else if (0 == fds_num){
-			log(log_level_t::WARN, "epoll_wait timeout\n");
+			log(log_level_t::WARNING, "epoll_wait timeout\n");
 			self->purge();
 			continue;
 		}
@@ -154,7 +154,7 @@ void *response::write_to_mq(void *arg)
 			log(log_level_t::INFO, "epoll_wait fd %d, events is %#.4x\n", ev[tick].data.fd, ev[tick].events);
 			log(log_level_t::INFO, "EPOLLIN is %#.4x, EPOLLRDHUP is %#.4x, EPOLLERR is %#.4x, EPOLLHUP is %#.4x\n", EPOLLIN, EPOLLRDHUP, EPOLLERR, EPOLLHUP);
 			if (EPOLLIN != ev[tick].events){
-				log(log_level_t::WARN, "remove fd %d and close it\n", ev[tick].data.fd);
+				log(log_level_t::WARNING, "remove fd %d and close it\n", ev[tick].data.fd);
 				if (-1 == epoll_ctl(self->ep_fd, EPOLL_CTL_DEL, ev[tick].data.fd, NULL)){
 					log(log_level_t::ERROR, "epoll_ctl EPOLL_CTL_DEL :%s\n", strerror(errno));
 				}
@@ -210,12 +210,12 @@ int response::recv_head(request_data &req_head)
 		log(log_level_t::ERROR, "recv: %s\n",len==-1?strerror(errno):"peer has performed an orderly shutdown");
 		return -1;
 	} else if (sizeof (head) != len){
-		log(log_level_t::WARN, "recved head len is not right, it should be %u, while the real is %u\n",\
+		log(log_level_t::WARNING, "recved head len is not right, it should be %u, while the real is %u\n",\
 				sizeof (head), len );
 		return -1;
 	}
 	if (0 != memcmp(head.sign, SIGN, sizeof (head.sign))){
-		log(log_level_t::WARN, "the data received is not what I want\n");
+		log(log_level_t::WARNING, "the data received is not what I want\n");
 		return -1;
 	}
 	req_head.len = ntohs(head.len);
@@ -239,7 +239,7 @@ int response::recv_body(request_data *req_body)
 	size_t remain_len;
 	remain_len = req_body->len - req_body->data.length();
 	if (0 == remain_len){
-		log(log_level_t::WARN, "peer send needless data\n");
+		log(log_level_t::WARNING, "peer send needless data\n");
 		return 0;
 	}
 	req_body->data.append(body, (len<remain_len)?len:remain_len);	

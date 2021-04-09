@@ -26,6 +26,8 @@
 #include <sys/file.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <poll.h>
+
 using namespace std;
 #define SIGN	"HTTP"
 #define PORT	2333
@@ -70,17 +72,35 @@ int send_data()
 	local_addr.sin_port = htons(PORT);    
 	inet_aton("127.0.0.1", &local_addr.sin_addr);
 
+	int len = 0;
 	char *str=NULL;	
 	msg_head head_rcv;
 	char buff[100]={0};
+	struct pollfd fds;
 	connect(client_sock, (struct sockaddr*)&local_addr, sizeof (local_addr));
 	for (int tick=0; tick<100; tick++){
 		printf("input what should send:\n");
 		scanf("%ms", &str);	
 		head.len = htons(strlen(str));
-		send(client_sock, &head, sizeof (head), 0);
+		memset(&fds, 0, sizeof (fds));
+		fds.fd = client_sock;
+		fds.events = POLLOUT | POLLRDHUP;
+		printf("POLLOUT: %x, POLLRDHUP:%x\n", POLLOUT, POLLRDHUP);
+        int ret = poll(&fds, 1, 20);
+		printf("poll ret:%d, fd:%d, retvent:%x\n", ret, fds.fd, fds.revents);
+
+		len = send(client_sock, &head, sizeof (head), 0);
+		printf("1send len:%d\n", len);
+
+		memset(&fds, 0, sizeof (fds));
+		fds.fd = client_sock;
+		fds.events = POLLOUT | POLLRDHUP;
+        ret = poll(&fds, 1, 20);
+		printf("poll ret:%d, fd:%d, retvent:%x\n", ret, fds.fd, fds.revents);
+
 		//send(client_sock, str, head.len, 0);
-		send(client_sock, str, strlen(str), 0);
+		len = send(client_sock, str, strlen(str), 0);
+		printf("2send len:%d\n", len);
 		if (NULL != str){
 			free(str);
 		}

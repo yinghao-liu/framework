@@ -14,7 +14,23 @@
 
 void pcap_loop_callback(u_char *user, const struct pcap_pkthdr *h, const u_char *bytes)
 {
-	printf("user:\n");
+	printf("user:%p, pcap_pkhdr:%p, byte:%p\n", user, h, bytes);
+	if (nullptr == h || nullptr == bytes)
+	{
+		return;
+	}
+	printf("caplen:%u, len:%u\n", h->caplen, h->len);
+	uint32_t index = 0;
+	for (index=0; index<h->caplen; index++) {
+		if (0 == index%8 && 0 != index) {
+			printf("  ");
+		}
+		if (0 == index%16 && 0 != index) {
+			printf("\n");
+		}
+		printf("%02x ", bytes[index]);
+	}
+	printf("\n");
 }
 
 int pcap(void)
@@ -45,7 +61,7 @@ int pcap(void)
 
 	/*start capture */
 	pcap_t *pcap_fd = nullptr;
-	pcap_fd = pcap_create("ens33", errbuf);
+	pcap_fd = pcap_create("lo", errbuf);
 	if (nullptr == pcap_fd) {
 		printf("pcap_create err:%s\n", errbuf);
 		return -1;
@@ -70,7 +86,22 @@ int pcap(void)
 		return ret;
 	}
 	
+	/*********** link-layer header type *************/
+	int *link_type = nullptr;
+	ret = pcap_list_datalinks(pcap_fd, &link_type);
+	if (ret <= 0) {
+		printf("pcap_list_datalinks error %s\n", pcap_geterr(pcap_fd));
+		pcap_close(pcap_fd);
+		return ret;
+	}
+	printf("ret:%d\n", ret);
+	printf("link_type:%p\n", link_type);
+	for (int i=0; i<ret; i++) {
+		printf("link_type:%d:%s\n", *(link_type+i), pcap_datalink_val_to_name(*(link_type+i)));
+	}
+	pcap_free_datalinks(link_type);
 
+	/*********** Reading packets *************/
 	printf("before pcap_loop\n");
 	ret = pcap_loop(pcap_fd, 10, pcap_loop_callback, nullptr);
 	printf("pcap_loop return %d\n", ret);

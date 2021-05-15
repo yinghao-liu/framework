@@ -31,6 +31,8 @@ void pcap_loop_callback(u_char *user, const struct pcap_pkthdr *h, const u_char 
 		printf("%02x ", bytes[index]);
 	}
 	printf("\n");
+
+	pcap_dump(user, h, bytes);
 }
 
 int pcap(void)
@@ -101,13 +103,22 @@ int pcap(void)
 	}
 	pcap_free_datalinks(link_type);
 
+	/**************open a file to write packets****************/
+	pcap_dumper_t *pcap_dump_fd = nullptr;
+	pcap_dump_fd = pcap_dump_open(pcap_fd, "lo.pcap");
+	if (nullptr == pcap_dump_fd) {
+		printf("error %s\n", pcap_geterr(pcap_fd));
+		pcap_close(pcap_fd);
+		return -1;
+	}
+
 	/*********** Reading packets *************/
 	printf("before pcap_loop\n");
-	ret = pcap_loop(pcap_fd, 10, pcap_loop_callback, nullptr);
+	ret = pcap_loop(pcap_fd, 10, pcap_loop_callback, (u_char*)pcap_dump_fd);
 	printf("pcap_loop return %d\n", ret);
 
-
 	pcap_close(pcap_fd);
+	pcap_dump_close(pcap_dump_fd);
 	return 0;
 }
 

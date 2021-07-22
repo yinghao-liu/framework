@@ -27,6 +27,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <poll.h>
+#include <signal.h>
 
 using namespace std;
 #define SIGN	"HTTP"
@@ -71,6 +72,12 @@ int send_data()
 	local_addr.sin_family = AF_INET;
 	local_addr.sin_port = htons(PORT);    
 	inet_aton("127.0.0.1", &local_addr.sin_addr);
+	// The  behavior of signal() varies across UNIX versions, and has also varied
+	// historically across different versions of Linux. Avoid its use: use sigaction(2) instead
+	// signal(SIGPIPE,SIG_IGN);
+	struct sigaction act = {};
+	act.sa_handler = SIG_IGN;
+	sigaction(SIGPIPE, &act, NULL);
 
 	int len = 0;
 	char *str=NULL;	
@@ -99,7 +106,11 @@ int send_data()
 		printf("poll ret:%d, fd:%d, retvent:%x\n", ret, fds.fd, fds.revents);
 
 		//send(client_sock, str, head.len, 0);
-		len = send(client_sock, str, strlen(str), 0);
+		if (0 == (fds.revents & POLLRDHUP)) {
+			len = send(client_sock, str, 0, 0);
+		} else {
+			len = send(client_sock, str, strlen(str), 0);
+		}
 		printf("2send len:%d\n", len);
 		if (NULL != str){
 			free(str);

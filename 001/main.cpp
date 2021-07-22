@@ -51,7 +51,8 @@ int listen_port(uint16_t port)
 	memset(&local_addr, 0, sizeof(local_addr));
 	local_addr.sin_family = AF_INET;
 	local_addr.sin_port = htons(port);    
-	local_addr.sin_addr.s_addr = INADDR_ANY;
+	//local_addr.sin_addr.s_addr = INADDR_ANY;
+	inet_pton(AF_INET, "127.0.0.1", &local_addr.sin_addr);
 
 	server_sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (-1 == server_sock) {
@@ -137,7 +138,12 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	signal(SIGPIPE, SIG_IGN);//ignore sigpipe
+	// The  behavior of signal() varies across UNIX versions, and has also varied
+	// historically across different versions of Linux. Avoid its use: use sigaction(2) instead
+	// signal(SIGPIPE, SIG_IGN);//ignore sigpipe
+	struct sigaction act = {};
+	act.sa_handler = SIG_IGN;
+	sigaction(SIGPIPE, &act, NULL);
 	while (1){
 		accefd = accept(sockfd, NULL, NULL);
 		if (-1 == accefd){

@@ -71,6 +71,7 @@ int response::mq_init(void)
 		log(log_level_t::ERROR, "maybe you should modify /proc/sys/fs/mqueue/msg_max to more than %d\n", MAX_MQ_MSG);
 		return -1;
 	}
+	return 0;
 }
 int response::epoll_init(void)
 {
@@ -79,6 +80,7 @@ int response::epoll_init(void)
 		log(log_level_t::ERROR, "epoll_creat: %s\n",strerror(errno));
 		return -1;
 	}
+	return 0;
 }
 int response::pthread_init(int pth_num)
 {
@@ -98,6 +100,7 @@ int response::pthread_init(int pth_num)
 			return -1;
 		}
 	}
+	return 0;
 }
 response::~response()
 {
@@ -290,6 +293,10 @@ int response::response_op(request_data *req_body)
 /***************************send back***************************/	
 	send(req_body->fd, &head, sizeof (head), 0);
 	send(req_body->fd, req_body->data.c_str(), req_body->data.length(), 0);
+
+	if (req_body->data == "close") {
+		close(req_body->fd);
+	}
 
 	log(log_level_t::INFO, "connected_fd is  %d, end at %ld\n", req_body->fd, time(NULL));
 	return 0;

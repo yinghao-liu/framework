@@ -2,7 +2,9 @@
 perf test
 
 ## Description
-
+perf record -g ./main
+then
+perf report -v
 ## Notes
 
 

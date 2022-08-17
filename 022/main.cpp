@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <time.h>
 #include <sys/time.h>
-
+#include <benchmark/benchmark.h>
+ 
 long gettime(int type)
 {
 	struct timespec tp;
 	clock_gettime(CLOCK_MONOTONIC, &tp);
 	//return tp.tv_nsec;
+
 
 	switch (type){
 	case 0:
@@ -23,8 +25,43 @@ long gettime(int type)
 		return 0;
 	}
 }
+static void bench_gettime4(benchmark::State& state)
+{
+    for (auto _: state) {
+		gettime(4);
+    }
+}
+
+static void bench_gettime0(benchmark::State& state)
+{
+    for (auto _: state) {
+		gettime(0);
+    }
+}
+BENCHMARK(bench_gettime4);
+BENCHMARK(bench_gettime0);
+ 
+ 
+static void bench_gettimeofday(benchmark::State& state)
+{
+	struct timeval ttimeEnd;
+    for (auto _: state) {
+		gettimeofday(&ttimeEnd, NULL);
+    }
+}
+static void bench_gettimeclock(benchmark::State& state)
+{
+	struct timespec tp;
+    for (auto _: state) {
+		clock_gettime(CLOCK_MONOTONIC, &tp);
+	}
+}
+BENCHMARK(bench_gettimeofday);
+BENCHMARK(bench_gettimeclock);
+BENCHMARK_MAIN();
 
 
+#if 0
 int main(void)
 {
 	/*
@@ -87,3 +124,4 @@ int main(void)
 
 	return 0;
 }
+#endif

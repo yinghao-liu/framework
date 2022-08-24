@@ -21,23 +21,30 @@
 #include <string.h>
 #include <execinfo.h>
 
-void fun_exit(void)
+void backtrace_print(void)
 {
-	void *buff[256] = {NULL};
+	void *buff[16] = {NULL};
 	char **symbols = NULL;
 	int num_of_symb = 0;
+
 	num_of_symb = backtrace(buff, sizeof (buff));
+	printf("backtrace() returned %d addresses\n", num_of_symb);
 	symbols = backtrace_symbols(buff, num_of_symb);
+	if (NULL == symbols) {
+		perror("backtrace_symbols");
+		return;
+	}
 	for (int i=0; i<num_of_symb; i++) {
 		printf("%s\n", symbols[i]);
 	}
+	free(symbols);
 }
 
 void sig_handler(int sig, siginfo_t *info, void *ucontext)
 {
 	ucontext_t *context = (ucontext_t *)ucontext;
 	printf("signal %u\n", sig);
-	fun_exit();
+	backtrace_print();
 	exit(-1);
 }
 

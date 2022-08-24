@@ -1,14 +1,15 @@
 # 005 
-backtrace
+Diagnostics
+## backtrace
 
-## Note
+### Note
 about the `-rdynamic` flag passed to `LDFLAGS` 
 > Pass the flag -export-dynamic to the ELF linker, on targets that support it. 
 > This instructs the linker to add all symbols, not only used ones, to the
 > dynamic symbol table. This option is needed for some uses of "dlopen" or to allow obtaining backtraces from within a program.
 
 
-## Example
+### Example
 there is a version without `-rdynamic`(main_nodynamic), you can use `addr2line` to convert addresses into file names and line numbers
 typically, run `addr2line -e main_nodynamic addr` to get the information.
 

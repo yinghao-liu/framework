@@ -7,3 +7,7 @@ echo_server
 ## 需要考虑的异常情况
 1. 消息头长度异常，与约定的不一致，主要是缺少
 2. 消息体长度异常，与消息头指定的不一致，少或多
+
+## socket
+FIN-WAIT-2 和 CLOSE-WAIT
+一直存在CLOSE-WAIT状态的socket: 关闭main

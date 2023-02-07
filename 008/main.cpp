@@ -34,6 +34,7 @@ int thread_sem_get(struct thread_sem *sem)
 {
 	printf("threadid:%lu, in thread_sem_get, mutex_lock is %d\n", pthread_self(), sem->mutex.__data.__lock);
 	pthread_mutex_lock(&sem->mutex);
+	printf("threadid:%lu, in thread_sem_get, get lock, tick is %d\n", pthread_self(), sem->tick);
 	while (sem->tick <= 0) {
 		pthread_cond_wait(&sem->cond, &sem->mutex);
 	}
@@ -46,6 +47,7 @@ int thread_sem_post(struct thread_sem *sem)
 {
 	printf("threadid:%lu, in thread_sem_post, mutex_lock is %d\n", pthread_self(), sem->mutex.__data.__lock);
 	pthread_mutex_lock(&sem->mutex);
+	printf("threadid:%lu, in thread_sem_post, get lock, tick is %d\n", pthread_self(), sem->tick);
 	sem->tick++;
 	pthread_mutex_unlock(&sem->mutex);
 	pthread_cond_signal(&sem->cond);

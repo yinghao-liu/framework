@@ -9,19 +9,22 @@ MODULE_DIR=moduleA moduleB
 
 all:x64
 DEBUG?=1
-SRC_SUFFIX?=.cpp
+SRC_SUFFIX?=.c
 
 
 # -std use the default one
+GCC=g++
 CXXFLAGS=-MMD
 LDFLAGS=-Llibs/$(PLATFORM)
 ifeq ($(DEBUG),1)
-FSANITIZE=-fsanitize=address #-fsanitize-recover=address
-CXXFLAGS+=-g $(FSANITIZE)
+#FSANITIZE=-fsanitize=address #-fsanitize-recover=address
+CXXFLAGS+=-g -O0 $(FSANITIZE)
 LDFLAGS+=$(FSANITIZE)
 endif
+
 ifeq ($(SRC_SUFFIX),.c)
 CFLAGS=$(CXXFLAGS)
+GCC=gcc
 endif
 
 # main.o:CXXFLAGS+=`pkg-config --cflags opencv`
@@ -63,7 +66,7 @@ BUILD = $(shell date +%c)
 VERSION = "$(TARGET) version $(MAJOR).$(MINOR).$(REVISION)\ncompiled $(BUILD)\n"
 $(TARGET).o:CXXFLAGS += -D'VERSION=$(VERSION)' -D'NAME="$(TARGET)"'
 
-CC=$(CROSS_COMPILE)g++
+CC=$(CROSS_COMPILE)$(GCC)
 CXX=$(CROSS_COMPILE)g++
 AR=$(CROSS_COMPILE)ar
 

@@ -28,3 +28,4 @@ This repository shows how to use something, such as a functon or a open source l
 ## 
 ### 030 [time and timezone](030) 
 ### 031 [socket status info](031) 
+### 032 [detect out-of-bounds by gdb-watch](032)
